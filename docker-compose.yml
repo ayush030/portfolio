@@ -1,0 +1,43 @@
+version: '3'
+services:
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: main
+      MYSQL_USER: mascot
+      MYSQL_PASSWORD: Ayush@123
+      MYSQL_ROOT_PASSWORD: nightfireoo7
+    volumes:
+      - .dbdata:/var/lib/mysql
+    ports:
+      - 33066:3306
+#    networks:
+#      - back-end
+
+  web:
+    image: django
+    build:
+      context: .
+      dockerfile: DockerfileWeb
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+    ports:
+      - 8000:8000
+    expose:
+      - 8000
+    volumes:
+      - /app:/home/PycharmProject/Portfolio/apps
+    links:
+      - db
+    depends_on:
+      - db
+#    networks:
+#      - front-end
+#      - back-end
+
+#networks:
+#  front-end:
+#  back-end:

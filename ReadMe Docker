@@ -1,0 +1,81 @@
+WORKDIR /src
+We are setting a working directory. It will then navigate to the src folder.
+It is essentially creating a working directory.
+From now on, we can pass in the relative paths based on the src directory.
+
+COPY requirements.txt requirements.txt
+Then it will copy the requirements.txt file.
+The COPY <first parameter> <second parameter> command tells Docker to take the file in the first parameter to copy into
+the image at the location specified in the second parameter. Therefore, we’ll copy the requirements.txt file into our
+working directory /src.
+
+COPY . .
+Now, we’ll copy the contents of the current working directory.
+Essentially, the COPY command copies the files that are located in the src directory and copies them into the image.
+
+Docker with no cache:
+It seems that when using the docker-compose command it saves an intermediate container that it doesnt show you and
+constantly reruns that never updating it correctly. Sadly the documentation regarding something like this is poor.
+The way to fix this is to build it first with no cache and then up it like so
+
+docker-compose build --no-cache
+docker-compose up -d
+
+
+CMD ./manage.py runserver 127.0.0.1:8002 to CMD ./manage.py runserver 0.0.0.0:8002
+This is because you want to listen on all interfaces inside the container. Listening to 127.0.0.1 inside the container
+will allow you to access the app only from inside the container.
+Next when you run this file, you need to make sure to map the port to the host os
+finally, go to http://127.0.0.1:8000/ in your browser.
+
+
+Docker service vs containers
+Services and container are related but both are different things.
+
+A service can be run by one or multiple containers. With docker you can handle containers and with docker-compose you
+can handle services.
+
+For example:
+
+Let's say that we have this docker-compose.yml file:
+
+web:
+  image: example/my_web_app:latest
+  expose:
+    - 80
+  links:
+    - db
+
+db:
+  image: postgres:latest
+This compose file defines two services, web and db.
+
+When you run docker-compose up, Assuming that the project directory is test1 then compose will start
+2 containers named test1_db_1 and test1_web_1.
+
+$ docker ps -a
+CONTAINER ID   IMAGE        COMMAND          ...      NAMES
+1c1683e871dc   test1_web    "nginx -g"       ...      test1_web_1
+a41360558f96   test1_db     "postgres -d"    ...      test1_db_1
+So, in this point you have 2 services and 1 container for each.
+
+But you could scale the service named web to use 5 containers.
+
+$ docker-compose scale web=5
+Creating and starting 2 ... done
+Creating and starting 3 ... done
+Creating and starting 4 ... done
+Creating and starting 5 ... done
+In this point you have 2 services and 6 containers
+
+$ docker ps -a
+CONTAINER ID   IMAGE        COMMAND         ...      NAMES
+1bf4c939263f   test1_web    "nginx -g"      ...      test1_web_3
+d3033964a44b   test1_web    "nginx -g"      ...      test1_web_4
+649bbda4d0b0   test1_web    "nginx -g"      ...      test1_web_5
+a265ea406727   test1_web    "nginx -g"      ...      test1_web_2
+1c1683e871dc   test1_web    "nginx -g"      ...      test1_web_1
+a41360558f96   test1_db     "postgres -d'   ...      test1_db_1
+Additionally, with docker-compose you can run subcommand against one or more services.
+
+$docker-compose stop web

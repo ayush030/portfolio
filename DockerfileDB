@@ -1,0 +1,8 @@
+FROM mysql:latest
+#ADD . .
+#RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 33066
+RUN /sbin/ip route|awk '/default/ { print $3 }'
+#WORKDIR /app/portfolio
+#CMD ["python3",  "manage.py runserver", "0.0.0.0:8000"]
