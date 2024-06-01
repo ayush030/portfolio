@@ -1,0 +1,5 @@
+portfolioVenv/
+pythonVenv
+guidebook
+db.sqlite3
+.env
